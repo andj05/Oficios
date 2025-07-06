@@ -15,6 +15,9 @@
                 <div class="nav-buttons">
                     <button class="btn btn-primary" onclick="openModal('registerModal')">Registrar mi oficio</button>
                     <button class="btn btn-secondary" onclick="openModal('loginModal')">Iniciar sesión</button>
+                    <!-- Botones temporales para debugging -->
+                    <button class="btn" style="background: orange; color: white; font-size: 0.8rem; padding: 0.5rem;" onclick="window.testFirebaseConnection()">Test Firebase</button>
+                    <button class="btn" style="background: purple; color: white; font-size: 0.8rem; padding: 0.5rem;" onclick="window.checkFirestoreData()">Ver Datos</button>
                 </div>
             </div>
         </div>
@@ -32,7 +35,7 @@
     <section class="search-section">
         <div class="container">
             <div class="search-container">
-                <input type="text" class="search-input" placeholder="Buscar por oficio..." id="searchInput">
+                <input type="text" class="search-input" placeholder="Buscar por oficio..." id="searchInput" autocomplete="off">
                 <select class="search-select" id="categorySelect">
                     <option value="">Todas las categorías</option>
                     <option value="Albañilería">Albañilería</option>
@@ -73,19 +76,23 @@
             <form id="registerForm">
                 <div class="form-group">
                     <label for="fullName">Nombre completo</label>
-                    <input type="text" id="fullName" required>
+                    <input type="text" id="fullName" autocomplete="name" required>
                 </div>
                 <div class="form-group">
                     <label for="email">Correo electrónico</label>
-                    <input type="email" id="email" required>
+                    <input type="email" id="email" autocomplete="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña (mínimo 6 caracteres)</label>
+                    <input type="password" id="password" autocomplete="new-password" required minlength="6">
                 </div>
                 <div class="form-group">
                     <label for="phone">Teléfono</label>
-                    <input type="tel" id="phone" required>
+                    <input type="tel" id="phone" autocomplete="tel" required>
                 </div>
                 <div class="form-group">
                     <label for="location">Ubicación (Ciudad, Provincia)</label>
-                    <input type="text" id="location" required>
+                    <input type="text" id="location" autocomplete="address-level2" required>
                 </div>
                 <div class="form-group">
                     <label for="trade">Oficio</label>
@@ -115,14 +122,18 @@
                         <p>Haz clic para subir tu foto de perfil</p>
                         <input type="file" id="profilePhoto" accept="image/*" style="display: none;">
                     </div>
+                    <div id="profilePhotoPreview" class="photo-preview"></div>
                 </div>
                 <div class="form-group">
-                    <label>Fotos de tus trabajos</label>
+                    <label>Fotos de tus trabajos (máximo 3)</label>
                     <div class="photo-upload" onclick="document.getElementById('workPhotos').click()">
                         <p>Haz clic para subir fotos de tus trabajos</p>
                         <input type="file" id="workPhotos" accept="image/*" multiple style="display: none;">
                     </div>
                     <div id="workPhotosPreview" class="photo-preview"></div>
+                </div>
+                <div style="background: #e8f5e8; padding: 1rem; border-radius: 5px; margin-bottom: 1rem; font-size: 0.9rem; color: #333;">
+                    <strong>📸 Info:</strong> Las fotos se guardan localmente en la base de datos. Recomendado: imágenes pequeñas (máx 500KB cada una).
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">Registrarme</button>
             </form>
@@ -137,17 +148,17 @@
             <form id="loginForm">
                 <div class="form-group">
                     <label for="loginEmail">Correo electrónico</label>
-                    <input type="email" id="loginEmail" required>
+                    <input type="email" id="loginEmail" autocomplete="email" required>
                 </div>
                 <div class="form-group">
                     <label for="loginPassword">Contraseña</label>
-                    <input type="password" id="loginPassword" required>
+                    <input type="password" id="loginPassword" autocomplete="current-password" required>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">Iniciar sesión</button>
             </form>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
