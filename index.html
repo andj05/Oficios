@@ -1,2 +1,153 @@
-Hola mundo
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oficios - Encuentra profesionales cerca de ti</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Oficios</div>
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="openModal('registerModal')">Registrar mi oficio</button>
+                    <button class="btn btn-secondary" onclick="openModal('loginModal')">Iniciar sesión</button>
+                </div>
+            </div>
+        </div>
+    </header>
 
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Encuentra profesionales cerca de ti</h1>
+            <p>Conecta con expertos en diferentes oficios y servicios en tu zona</p>
+        </div>
+    </section>
+
+    <!-- Search Section -->
+    <section class="search-section">
+        <div class="container">
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Buscar por oficio..." id="searchInput">
+                <select class="search-select" id="categorySelect">
+                    <option value="">Todas las categorías</option>
+                    <option value="Albañilería">Albañilería</option>
+                    <option value="Plomería">Plomería</option>
+                    <option value="Electricidad">Electricidad</option>
+                    <option value="Carpintería">Carpintería</option>
+                    <option value="Costura">Costura</option>
+                    <option value="Peluquería">Peluquería</option>
+                    <option value="Jardinería">Jardinería</option>
+                    <option value="Soldadura">Soldadura</option>
+                    <option value="Pintura">Pintura</option>
+                    <option value="Mecánica">Mecánica</option>
+                    <option value="Limpieza">Limpieza</option>
+                    <option value="Cocina">Cocina</option>
+                </select>
+                <button class="search-btn" onclick="searchWorkers()">Buscar</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="results-section">
+        <div class="container">
+            <div id="resultsContainer">
+                <h2>Profesionales destacados</h2>
+                <div class="results-grid" id="resultsGrid">
+                    <!-- Los resultados se cargarán dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('registerModal')">&times;</span>
+            <h2>Registrar mi oficio</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="fullName">Nombre completo</label>
+                    <input type="text" id="fullName" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Correo electrónico</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Teléfono</label>
+                    <input type="tel" id="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="location">Ubicación (Ciudad, Provincia)</label>
+                    <input type="text" id="location" required>
+                </div>
+                <div class="form-group">
+                    <label for="trade">Oficio</label>
+                    <select id="trade" required>
+                        <option value="">Seleccionar oficio</option>
+                        <option value="Albañilería">Albañilería</option>
+                        <option value="Plomería">Plomería</option>
+                        <option value="Electricidad">Electricidad</option>
+                        <option value="Carpintería">Carpintería</option>
+                        <option value="Costura">Costura</option>
+                        <option value="Peluquería">Peluquería</option>
+                        <option value="Jardinería">Jardinería</option>
+                        <option value="Soldadura">Soldadura</option>
+                        <option value="Pintura">Pintura</option>
+                        <option value="Mecánica">Mecánica</option>
+                        <option value="Limpieza">Limpieza</option>
+                        <option value="Cocina">Cocina</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="description">Descripción de tu trabajo</label>
+                    <textarea id="description" placeholder="Ejemplo: Albañil con 15 años de experiencia en construcción residencial..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Foto de perfil</label>
+                    <div class="photo-upload" onclick="document.getElementById('profilePhoto').click()">
+                        <p>Haz clic para subir tu foto de perfil</p>
+                        <input type="file" id="profilePhoto" accept="image/*" style="display: none;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Fotos de tus trabajos</label>
+                    <div class="photo-upload" onclick="document.getElementById('workPhotos').click()">
+                        <p>Haz clic para subir fotos de tus trabajos</p>
+                        <input type="file" id="workPhotos" accept="image/*" multiple style="display: none;">
+                    </div>
+                    <div id="workPhotosPreview" class="photo-preview"></div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Registrarme</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('loginModal')">&times;</span>
+            <h2>Iniciar sesión</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Correo electrónico</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Contraseña</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Iniciar sesión</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
