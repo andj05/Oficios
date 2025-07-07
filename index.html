@@ -15,9 +15,6 @@
                 <div class="nav-buttons">
                     <button class="btn btn-primary" onclick="openModal('registerModal')">Registrar mi oficio</button>
                     <button class="btn btn-secondary" onclick="openModal('loginModal')">Iniciar sesión</button>
-                    <!-- Botones temporales para debugging -->
-                    <button class="btn" style="background: orange; color: white; font-size: 0.8rem; padding: 0.5rem;" onclick="window.testFirebaseConnection()">Test Firebase</button>
-                    <button class="btn" style="background: purple; color: white; font-size: 0.8rem; padding: 0.5rem;" onclick="window.checkFirestoreData()">Ver Datos</button>
                 </div>
             </div>
         </div>
@@ -155,6 +152,86 @@
                     <input type="password" id="loginPassword" autocomplete="current-password" required>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">Iniciar sesión</button>
+                <div style="text-align: center; margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                    ¿No tienes cuenta? 
+                    <button type="button" onclick="closeModal('loginModal'); openModal('registerModal');" style="background: none; border: none; color: #667eea; text-decoration: underline; cursor: pointer;">
+                        Regístrate aquí
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile Dashboard Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="close" onclick="closeModal('profileModal')">&times;</span>
+            <div id="profileDashboard">
+                <!-- El contenido se carga dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editProfileModal')">&times;</span>
+            <h2>Editar mi perfil</h2>
+            <form id="editProfileForm">
+                <div class="form-group">
+                    <label for="editFullName">Nombre completo</label>
+                    <input type="text" id="editFullName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editPhone">Teléfono</label>
+                    <input type="tel" id="editPhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="editLocation">Ubicación</label>
+                    <input type="text" id="editLocation" required>
+                </div>
+                <div class="form-group">
+                    <label for="editTrade">Oficio</label>
+                    <select id="editTrade" required>
+                        <option value="">Seleccionar oficio</option>
+                        <option value="Albañilería">Albañilería</option>
+                        <option value="Plomería">Plomería</option>
+                        <option value="Electricidad">Electricidad</option>
+                        <option value="Carpintería">Carpintería</option>
+                        <option value="Costura">Costura</option>
+                        <option value="Peluquería">Peluquería</option>
+                        <option value="Jardinería">Jardinería</option>
+                        <option value="Soldadura">Soldadura</option>
+                        <option value="Pintura">Pintura</option>
+                        <option value="Mecánica">Mecánica</option>
+                        <option value="Limpieza">Limpieza</option>
+                        <option value="Cocina">Cocina</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editDescription">Descripción</label>
+                    <textarea id="editDescription" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Nueva foto de perfil (opcional)</label>
+                    <div class="photo-upload" onclick="document.getElementById('editProfilePhoto').click()">
+                        <p>Haz clic para cambiar tu foto de perfil</p>
+                        <input type="file" id="editProfilePhoto" accept="image/*" style="display: none;">
+                    </div>
+                    <div id="editProfilePhotoPreview" class="photo-preview"></div>
+                </div>
+                <div class="form-group">
+                    <label>Nuevas fotos de trabajos (opcional, máximo 3)</label>
+                    <div class="photo-upload" onclick="document.getElementById('editWorkPhotos').click()">
+                        <p>Haz clic para cambiar fotos de trabajos</p>
+                        <input type="file" id="editWorkPhotos" accept="image/*" multiple style="display: none;">
+                    </div>
+                    <div id="editWorkPhotosPreview" class="photo-preview"></div>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Guardar cambios</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editProfileModal')" style="flex: 1;">Cancelar</button>
+                </div>
             </form>
         </div>
     </div>
