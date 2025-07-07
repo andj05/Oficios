@@ -7,11 +7,17 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Header -->
+    <!-- Header estilo LinkedIn mejorado -->
     <header>
         <div class="container">
             <div class="header-content">
-                <div class="logo">Oficios</div>
+                <div class="logo">
+                    <img src="img/logo.jpg" alt="Oficios">
+                </div>
+                <div class="search-container-header">
+                    <input type="text" class="search-input-header" placeholder="Buscar profesionales..." id="headerSearchInput" autocomplete="off">
+                    <button class="search-btn-header" onclick="quickSearch()">🔍</button>
+                </div>
                 <div class="nav-buttons">
                     <button class="btn btn-primary" onclick="openModal('registerModal')">Registrar mi oficio</button>
                     <button class="btn btn-secondary" onclick="openModal('loginModal')">Iniciar sesión</button>
@@ -28,39 +34,63 @@
         </div>
     </section>
 
-    <!-- Search Section -->
-    <section class="search-section">
+    <!-- Main Content con nuevo layout -->
+    <section class="main-content">
         <div class="container">
-            <div class="search-container">
-                <input type="text" class="search-input" placeholder="Buscar por oficio..." id="searchInput" autocomplete="off">
-                <select class="search-select" id="categorySelect">
-                    <option value="">Todas las categorías</option>
-                    <option value="Albañilería">Albañilería</option>
-                    <option value="Plomería">Plomería</option>
-                    <option value="Electricidad">Electricidad</option>
-                    <option value="Carpintería">Carpintería</option>
-                    <option value="Costura">Costura</option>
-                    <option value="Peluquería">Peluquería</option>
-                    <option value="Jardinería">Jardinería</option>
-                    <option value="Soldadura">Soldadura</option>
-                    <option value="Pintura">Pintura</option>
-                    <option value="Mecánica">Mecánica</option>
-                    <option value="Limpieza">Limpieza</option>
-                    <option value="Cocina">Cocina</option>
-                </select>
-                <button class="search-btn" onclick="searchWorkers()">Buscar</button>
-            </div>
-        </div>
-    </section>
+            <div class="content-grid">
+                <!-- Panel de filtros lateral -->
+                <aside class="filters-panel">
+                    <h2 class="filters-title">🎯 Filtros</h2>
+                    
+                    <div class="filter-group">
+                        <h3>Oficios</h3>
+                        <div class="filter-tags">
+                            <button class="filter-tag active" data-category="">Todos</button>
+                            <button class="filter-tag" data-category="Albañilería">Albañilería</button>
+                            <button class="filter-tag" data-category="Plomería">Plomería</button>
+                            <button class="filter-tag" data-category="Electricidad">Electricidad</button>
+                            <button class="filter-tag" data-category="Carpintería">Carpintería</button>
+                            <button class="filter-tag" data-category="Costura">Costura</button>
+                            <button class="filter-tag" data-category="Peluquería">Peluquería</button>
+                            <button class="filter-tag" data-category="Jardinería">Jardinería</button>
+                            <button class="filter-tag" data-category="Soldadura">Soldadura</button>
+                            <button class="filter-tag" data-category="Pintura">Pintura</button>
+                            <button class="filter-tag" data-category="Mecánica">Mecánica</button>
+                            <button class="filter-tag" data-category="Limpieza">Limpieza</button>
+                            <button class="filter-tag" data-category="Cocina">Cocina</button>
+                        </div>
+                    </div>
 
-    <!-- Results Section -->
-    <section class="results-section">
-        <div class="container">
-            <div id="resultsContainer">
-                <h2>Profesionales destacados</h2>
-                <div class="results-grid" id="resultsGrid">
-                    <!-- Los resultados se cargarán dinámicamente -->
-                </div>
+                    <div class="filter-group">
+                        <h3>Calificación</h3>
+                        <div class="filter-tags">
+                            <button class="filter-tag" data-rating="5">5 ⭐</button>
+                            <button class="filter-tag" data-rating="4">4+ ⭐</button>
+                            <button class="filter-tag" data-rating="3">3+ ⭐</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <h3>Búsqueda Avanzada</h3>
+                        <div class="advanced-search">
+                            <input type="text" class="search-input" placeholder="Buscar por nombre..." id="nameSearchInput">
+                            <input type="text" class="search-input" placeholder="Ubicación..." id="locationSearchInput">
+                            <button class="search-btn" onclick="advancedSearch()">Buscar</button>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Área principal de resultados -->
+                <main class="results-area">
+                    <div class="results-header">
+                        <h2 id="resultsTitle">Profesionales disponibles</h2>
+                        <div class="results-count" id="resultsCount">0 profesionales encontrados</div>
+                    </div>
+                    
+                    <div class="results-grid" id="resultsGrid">
+                        <!-- Los resultados se cargarán dinámicamente -->
+                    </div>
+                </main>
             </div>
         </div>
     </section>
@@ -69,32 +99,32 @@
     <div id="registerModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('registerModal')">&times;</span>
-            <h2>Registrar mi oficio</h2>
+            <h2>Únete a Oficios</h2>
             <form id="registerForm">
                 <div class="form-group">
-                    <label for="fullName">Nombre completo</label>
-                    <input type="text" id="fullName" autocomplete="name" required>
+                    <label for="fullName">Nombre completo *</label>
+                    <input type="text" id="fullName" placeholder="Ej: Juan Pérez" autocomplete="name" required>
                 </div>
                 <div class="form-group">
-                    <label for="email">Correo electrónico</label>
-                    <input type="email" id="email" autocomplete="email" required>
+                    <label for="email">Correo electrónico *</label>
+                    <input type="email" id="email" placeholder="tu@email.com" autocomplete="email" required>
                 </div>
                 <div class="form-group">
-                    <label for="password">Contraseña (mínimo 6 caracteres)</label>
-                    <input type="password" id="password" autocomplete="new-password" required minlength="6">
+                    <label for="password">Contraseña *</label>
+                    <input type="password" id="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password" required minlength="6">
                 </div>
                 <div class="form-group">
-                    <label for="phone">Teléfono</label>
-                    <input type="tel" id="phone" autocomplete="tel" required>
+                    <label for="phone">Teléfono *</label>
+                    <input type="tel" id="phone" placeholder="809-123-4567" autocomplete="tel" required>
                 </div>
                 <div class="form-group">
-                    <label for="location">Ubicación (Ciudad, Provincia)</label>
-                    <input type="text" id="location" autocomplete="address-level2" required>
+                    <label for="location">Ubicación *</label>
+                    <input type="text" id="location" placeholder="Santo Domingo, DN" autocomplete="address-level2" required>
                 </div>
                 <div class="form-group">
-                    <label for="trade">Oficio</label>
+                    <label for="trade">Mi oficio *</label>
                     <select id="trade" required>
-                        <option value="">Seleccionar oficio</option>
+                        <option value="">Selecciona tu oficio</option>
                         <option value="Albañilería">Albañilería</option>
                         <option value="Plomería">Plomería</option>
                         <option value="Electricidad">Electricidad</option>
@@ -110,13 +140,14 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="description">Descripción de tu trabajo</label>
-                    <textarea id="description" placeholder="Ejemplo: Albañil con 15 años de experiencia en construcción residencial..." required></textarea>
+                    <label for="description">Describe tu experiencia *</label>
+                    <textarea id="description" placeholder="Ej: Albañil con 15 años de experiencia en construcción residencial y comercial. Especializado en..." required></textarea>
                 </div>
                 <div class="form-group">
                     <label>Foto de perfil</label>
                     <div class="photo-upload" onclick="document.getElementById('profilePhoto').click()">
-                        <p>Haz clic para subir tu foto de perfil</p>
+                        <p>📷 Agrega tu foto de perfil</p>
+                        <small>Ayuda a que los clientes te reconozcan</small>
                         <input type="file" id="profilePhoto" accept="image/*" style="display: none;">
                     </div>
                     <div id="profilePhotoPreview" class="photo-preview"></div>
@@ -124,15 +155,16 @@
                 <div class="form-group">
                     <label>Fotos de tus trabajos (máximo 3)</label>
                     <div class="photo-upload" onclick="document.getElementById('workPhotos').click()">
-                        <p>Haz clic para subir fotos de tus trabajos</p>
+                        <p>🖼️ Muestra ejemplos de tu trabajo</p>
+                        <small>Las fotos ayudan a conseguir más clientes</small>
                         <input type="file" id="workPhotos" accept="image/*" multiple style="display: none;">
                     </div>
                     <div id="workPhotosPreview" class="photo-preview"></div>
                 </div>
-                <div style="background: #e8f5e8; padding: 1rem; border-radius: 5px; margin-bottom: 1rem; font-size: 0.9rem; color: #333;">
-                    <strong>📸 Info:</strong> Las fotos se guardan localmente en la base de datos. Recomendado: imágenes pequeñas (máx 500KB cada una).
+                <div class="info-box">
+                    <strong>💡 Tip:</strong> Las fotos se guardan de forma segura. Recomendamos imágenes claras y bien iluminadas de tus mejores trabajos.
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Registrarme</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">Crear mi perfil</button>
             </form>
         </div>
     </div>
@@ -145,17 +177,18 @@
             <form id="loginForm">
                 <div class="form-group">
                     <label for="loginEmail">Correo electrónico</label>
-                    <input type="email" id="loginEmail" autocomplete="email" required>
+                    <input type="email" id="loginEmail" placeholder="tu@email.com" autocomplete="email" required>
                 </div>
                 <div class="form-group">
                     <label for="loginPassword">Contraseña</label>
-                    <input type="password" id="loginPassword" autocomplete="current-password" required>
+                    <input type="password" id="loginPassword" placeholder="Tu contraseña" autocomplete="current-password" required>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Iniciar sesión</button>
-                <div style="text-align: center; margin-top: 1rem; font-size: 0.9rem; color: #666;">
-                    ¿No tienes cuenta? 
-                    <button type="button" onclick="closeModal('loginModal'); openModal('registerModal');" style="background: none; border: none; color: #667eea; text-decoration: underline; cursor: pointer;">
-                        Regístrate aquí
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">Iniciar sesión</button>
+                <div style="text-align: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid #e0e0e0;">
+                    <span style="color: #666666; font-size: 0.9rem;">¿No tienes cuenta?</span>
+                    <button type="button" onclick="closeModal('loginModal'); openModal('registerModal');" 
+                            style="background: none; border: none; color: #0a66c2; text-decoration: none; cursor: pointer; font-weight: 600; margin-left: 4px;">
+                        Únete ahora
                     </button>
                 </div>
             </form>
@@ -164,7 +197,7 @@
 
     <!-- Profile Dashboard Modal -->
     <div id="profileModal" class="modal">
-        <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-content" style="max-width: 900px;">
             <span class="close" onclick="closeModal('profileModal')">&times;</span>
             <div id="profileDashboard">
                 <!-- El contenido se carga dinámicamente -->
@@ -215,7 +248,7 @@
                 <div class="form-group">
                     <label>Nueva foto de perfil (opcional)</label>
                     <div class="photo-upload" onclick="document.getElementById('editProfilePhoto').click()">
-                        <p>Haz clic para cambiar tu foto de perfil</p>
+                        <p>📷 Cambiar foto de perfil</p>
                         <input type="file" id="editProfilePhoto" accept="image/*" style="display: none;">
                     </div>
                     <div id="editProfilePhotoPreview" class="photo-preview"></div>
@@ -223,16 +256,36 @@
                 <div class="form-group">
                     <label>Nuevas fotos de trabajos (opcional, máximo 3)</label>
                     <div class="photo-upload" onclick="document.getElementById('editWorkPhotos').click()">
-                        <p>Haz clic para cambiar fotos de trabajos</p>
+                        <p>🖼️ Actualizar fotos de trabajos</p>
                         <input type="file" id="editWorkPhotos" accept="image/*" multiple style="display: none;">
                     </div>
                     <div id="editWorkPhotosPreview" class="photo-preview"></div>
                 </div>
-                <div style="display: flex; gap: 1rem;">
-                    <button type="submit" class="btn btn-primary" style="flex: 1;">Guardar cambios</button>
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('editProfileModal')" style="flex: 1;">Cancelar</button>
+                <div style="display: flex; gap: 12px; margin-top: 24px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1; padding: 12px;">Guardar cambios</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editProfileModal')" style="flex: 1; padding: 12px;">Cancelar</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Rating Modal -->
+    <div id="ratingModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <span class="close" onclick="closeModal('ratingModal')">&times;</span>
+            <h2>Calificar profesional</h2>
+            <div class="rating-section">
+                <p style="text-align: center; margin-bottom: 20px;">¿Cómo fue tu experiencia?</p>
+                <div class="star-rating" id="starRating">
+                    <span class="star" data-rating="1">⭐</span>
+                    <span class="star" data-rating="2">⭐</span>
+                    <span class="star" data-rating="3">⭐</span>
+                    <span class="star" data-rating="4">⭐</span>
+                    <span class="star" data-rating="5">⭐</span>
+                </div>
+                <textarea placeholder="Cuéntanos sobre tu experiencia (opcional)" id="ratingComment" style="width: 100%; margin: 20px 0; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+                <button class="btn btn-primary" onclick="submitRating()" style="width: 100%;">Enviar calificación</button>
+            </div>
         </div>
     </div>
 

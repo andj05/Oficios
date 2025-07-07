@@ -34,6 +34,10 @@ let currentUser = null;
 let currentUserProfile = null;
 let editProfilePhotoBase64 = null;
 let editWorkPhotosBase64 = [];
+// Agregar al inicio del archivo, después de las variables existentes
+let selectedRating = 0;
+let currentWorkerId = null;
+let filteredWorkers = [];
 
 // ===== FUNCIONES AUXILIARES =====
 
@@ -150,61 +154,63 @@ async function loadUserProfile(user) {
     }
 }
 
+// Reemplazar la parte de estadísticas en showProfileDashboard con esto:
 function showProfileDashboard(profile) {
     const dashboard = document.getElementById('profileDashboard');
     
     if (!profile) {
         dashboard.innerHTML = `
-            <div style="text-align: center; padding: 3rem;">
-                <h2 style="color: #f44336; margin-bottom: 1rem;">❌ Error cargando perfil</h2>
-                <p style="color: #666; margin-bottom: 2rem;">No se pudo cargar la información de tu perfil.</p>
+            <div class="empty-state">
+                <div class="empty-state-icon">❌</div>
+                <div class="empty-state-title">Error cargando perfil</div>
+                <div class="empty-state-description">No se pudo cargar la información de tu perfil.</div>
                 <button class="btn btn-primary" onclick="window.location.reload()">🔄 Recargar página</button>
-                <button class="btn btn-secondary" onclick="closeModal('profileModal')" style="margin-left: 1rem;">❌ Cerrar</button>
             </div>
         `;
         return;
     }
 
-    console.log('📊 Mostrando dashboard para:', profile.fullName);
-    
     const workPhotosGallery = profile.workPhotos && profile.workPhotos.length > 0 
         ? `<div class="work-gallery">
              ${profile.workPhotos.map((photo, index) => 
-                 `<div style="position: relative;">
-                    <img src="${photo}" class="work-photo" onclick="showFullImage('${photo}')" alt="Trabajo ${index + 1}">
-                    <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.8rem;">
-                        ${index + 1}/${profile.workPhotos.length}
-                    </div>
-                  </div>`
+                 `<img src="${photo}" class="work-photo" onclick="showFullImage('${photo}')" alt="Trabajo ${index + 1}">`
              ).join('')}
            </div>`
-        : '<div style="text-align: center; padding: 2rem; background: #f8f9fa; border-radius: 8px; border: 2px dashed #ddd;"><p style="color: #666; margin: 0;">📸 No has subido fotos de trabajos aún</p><p style="color: #888; margin: 5px 0 0 0; font-size: 0.9rem;">Haz clic en "Editar perfil" para agregar fotos</p></div>';
+        : `<div class="empty-state">
+             <div class="empty-state-icon">📸</div>
+             <div class="empty-state-title">No has subido fotos de trabajos</div>
+             <div class="empty-state-description">Agrega fotos para mostrar tu experiencia a los clientes</div>
+           </div>`;
 
-    // Calcular tiempo desde registro
+    // Calcular tiempo desde registro y estadísticas
     const createdDate = profile.createdAt?.toDate ? profile.createdAt.toDate() : new Date(profile.createdAt);
     const daysSinceRegistration = Math.floor((new Date() - createdDate) / (1000 * 60 * 60 * 24));
+    
+    // Simular calificación promedio y número de reseñas
+    const avgRating = (Math.random() * 2 + 3).toFixed(1);
+    const reviewCount = Math.floor(Math.random() * 50) + 5;
+    const stars = '⭐'.repeat(Math.floor(avgRating));
     
     dashboard.innerHTML = `
         <div class="profile-dashboard">
             <div class="profile-header">
-                <img src="${profile.profilePhoto || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(profile.fullName) + '&background=667eea&color=fff&size=200'}" alt="${profile.fullName}" class="profile-avatar">
+                <img src="${profile.profilePhoto || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(profile.fullName) + '&background=0a66c2&color=fff&size=200'}" 
+                     alt="${profile.fullName}" class="profile-avatar">
                 <div class="profile-info">
-                    <h2>${profile.fullName || 'Usuario'} ✨</h2>
+                    <h2>${profile.fullName || 'Usuario'}</h2>
                     <div class="trade">${profile.trade || 'Sin oficio definido'}</div>
                     <div class="location">📍 ${profile.location || 'Ubicación no definida'}</div>
-                    <div style="color: #888; font-size: 0.9rem; margin-top: 0.5rem;">
-                        👤 Miembro desde hace ${daysSinceRegistration} días
+                    <div class="worker-rating" style="justify-content: flex-start; margin: 8px 0;">
+                        <span class="stars">${stars}</span>
+                        <span class="rating-text">${avgRating} (${reviewCount} reseñas)</span>
                     </div>
-                    <div style="margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
-                        <button class="btn btn-primary" onclick="openEditProfile()" style="display: flex; align-items: center; gap: 0.5rem;">
-                            ✏️ Editar perfil
-                        </button>
-                        <button class="btn" onclick="previewPublicProfile()" style="background: #4CAF50; color: white; display: flex; align-items: center; gap: 0.5rem;">
-                            👁️ Ver como cliente
-                        </button>
-                        <button class="logout-btn" onclick="logoutUser()" style="display: flex; align-items: center; gap: 0.5rem;">
-                            🚪 Cerrar sesión
-                        </button>
+                    <div style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; margin-top: 8px;">
+                        Miembro desde hace ${daysSinceRegistration} días
+                    </div>
+                    <div class="profile-actions">
+                        <button class="btn btn-primary" onclick="openEditProfile()">✏️ Editar perfil</button>
+                        <button class="btn btn-secondary" onclick="previewPublicProfile()">👁️ Vista pública</button>
+                        <button class="logout-btn" onclick="logoutUser()">🚪 Cerrar sesión</button>
                     </div>
                 </div>
             </div>
@@ -215,12 +221,12 @@ function showProfileDashboard(profile) {
                     <div class="stat-label">Fotos de trabajos</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number">📞</div>
-                    <div class="stat-label">${profile.phone || 'Sin teléfono'}</div>
+                    <div class="stat-number">${avgRating}</div>
+                    <div class="stat-label">Calificación promedio</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number">📧</div>
-                    <div class="stat-label">${profile.email ? (profile.email.length > 20 ? profile.email.substring(0, 17) + '...' : profile.email) : 'Sin email'}</div>
+                    <div class="stat-number">${reviewCount}</div>
+                    <div class="stat-label">Reseñas recibidas</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-number">${daysSinceRegistration}</div>
@@ -230,42 +236,39 @@ function showProfileDashboard(profile) {
 
             <div class="profile-section">
                 <h3>📝 Mi descripción profesional</h3>
-                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #667eea;">
-                    <p style="margin: 0; line-height: 1.6; color: #555;">${profile.description || 'No hay descripción disponible.'}</p>
+                <div class="profile-section-content">
+                    <p style="margin: 0; line-height: 1.6; color: #333;">${profile.description || 'No hay descripción disponible.'}</p>
                 </div>
             </div>
 
             <div class="profile-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h3 style="margin: 0;">🖼️ Portafolio de trabajos</h3>
-                    <span style="background: #667eea; color: white; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem;">
-                        ${profile.workPhotos ? profile.workPhotos.length : 0} fotos
-                    </span>
+                <h3>🖼️ Portafolio de trabajos (${profile.workPhotos ? profile.workPhotos.length : 0})</h3>
+                <div class="profile-section-content">
+                    ${workPhotosGallery}
                 </div>
-                ${workPhotosGallery}
             </div>
 
             <div class="profile-section">
-                <h3>📊 Información de contacto</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
-                    <div style="background: #f0f8ff; padding: 1rem; border-radius: 8px; text-align: center;">
-                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📱</div>
-                        <div style="font-weight: bold; color: #333;">Teléfono</div>
-                        <div style="color: #666;">${profile.phone || 'No disponible'}</div>
-                        ${profile.phone ? `<a href="tel:${profile.phone}" style="display: inline-block; margin-top: 0.5rem; padding: 0.3rem 1rem; background: #4CAF50; color: white; text-decoration: none; border-radius: 15px; font-size: 0.9rem;">Llamar ahora</a>` : ''}
-                    </div>
-                    <div style="background: #f0f8ff; padding: 1rem; border-radius: 8px; text-align: center;">
-                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">✉️</div>
-                        <div style="font-weight: bold; color: #333;">Email</div>
-                        <div style="color: #666; word-break: break-word;">${profile.email || 'No disponible'}</div>
-                        ${profile.email ? `<a href="mailto:${profile.email}" style="display: inline-block; margin-top: 0.5rem; padding: 0.3rem 1rem; background: #2196F3; color: white; text-decoration: none; border-radius: 15px; font-size: 0.9rem;">Enviar email</a>` : ''}
+                <h3>📞 Información de contacto</h3>
+                <div class="profile-section-content">
+                    <div class="contact-grid">
+                        <div class="contact-item">
+                            <div class="contact-item-icon">📱</div>
+                            <div class="contact-item-label">Teléfono</div>
+                            <div class="contact-item-value">${profile.phone || 'No disponible'}</div>
+                            ${profile.phone ? `<a href="tel:${profile.phone}" class="contact-item-action">Llamar ahora</a>` : ''}
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-item-icon">✉️</div>
+                            <div class="contact-item-label">Email</div>
+                            <div class="contact-item-value">${profile.email || 'No disponible'}</div>
+                            ${profile.email ? `<a href="mailto:${profile.email}" class="contact-item-action">Enviar email</a>` : ''}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     `;
-    
-    console.log('✅ Dashboard mostrado correctamente');
 }
 
 async function openEditProfile() {
@@ -307,23 +310,20 @@ window.openEditProfile = openEditProfile;
 
 function previewPublicProfile() {
     try {
-        console.log('👁️ Mostrando vista previa pública...');
-        
         if (!currentUserProfile) {
             showMessage('❌ No hay perfil para mostrar', 'error');
             return;
         }
         
-        // Crear una vista temporal del perfil como lo ven los clientes
         const modal = document.createElement('div');
         modal.id = 'publicPreviewModal';
         modal.className = 'modal';
         modal.style.display = 'block';
         
         const workPhotosGallery = currentUserProfile.workPhotos && currentUserProfile.workPhotos.length > 0 
-            ? `<div style="display: flex; gap: 5px; margin-top: 10px; overflow-x: auto;">
+            ? `<div class="work-photos-grid">
                  ${currentUserProfile.workPhotos.map(photo => 
-                     `<img src="${photo}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px; flex-shrink: 0; cursor: pointer;" 
+                     `<img src="${photo}" class="work-photo-thumb" 
                            onclick="showFullImage('${photo}')" title="Ver imagen completa">`
                  ).join('')}
                </div>`
@@ -332,11 +332,11 @@ function previewPublicProfile() {
         modal.innerHTML = `
             <div class="modal-content" style="max-width: 400px;">
                 <span class="close" onclick="document.getElementById('publicPreviewModal').remove()">&times;</span>
-                <h2 style="text-align: center; color: #667eea; margin-bottom: 1rem;">👁️ Vista del Cliente</h2>
+                <h2 style="text-align: center; color: #0a66c2; margin-bottom: 20px;">👁️ Vista del Cliente</h2>
                 
-                <div class="worker-card" style="margin: 0; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
+                <div class="worker-card" style="margin: 0; border: 2px solid #0a66c2;">
                     <img src="${currentUserProfile.profilePhoto}" alt="${currentUserProfile.fullName}" class="worker-avatar" 
-                         onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(currentUserProfile.fullName)}&background=667eea&color=fff&size=200'">
+                         onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(currentUserProfile.fullName)}&background=0a66c2&color=fff&size=200'">
                     <div class="worker-info">
                         <div class="worker-name">${currentUserProfile.fullName}</div>
                         <div class="worker-trade">${currentUserProfile.trade}</div>
@@ -345,21 +345,18 @@ function previewPublicProfile() {
                         ${workPhotosGallery}
                         <div class="worker-contact">
                             <span class="contact-btn contact-phone" style="cursor: default;">📞 Llamar</span>
-                            <span class="contact-btn contact-email" style="cursor: default;">📧 Email</span>
+                            <span class="contact-btn contact-email" style="cursor: default;">✉️ Email</span>
                         </div>
                     </div>
                 </div>
                 
-                <div style="text-align: center; margin-top: 1rem; padding: 1rem; background: #f0f8ff; border-radius: 8px;">
-                    <p style="margin: 0; color: #666; font-size: 0.9rem;">
-                        🔍 Así es como los clientes ven tu perfil en los resultados de búsqueda
-                    </p>
+                <div class="info-box" style="margin-top: 16px; text-align: center;">
+                    <strong>🔍 Vista previa:</strong> Así es como los clientes ven tu perfil en los resultados de búsqueda
                 </div>
             </div>
         `;
         
         document.body.appendChild(modal);
-        console.log('✅ Vista previa mostrada');
     } catch (error) {
         console.error('❌ Error en vista previa:', error);
         showMessage('Error al mostrar vista previa', 'error');
@@ -403,8 +400,8 @@ function updateHeaderButtons() {
     
     if (currentUser && currentUserProfile) {
         navButtons.innerHTML = `
-            <button class="btn btn-primary" onclick="openUserProfile()">👤 Mi Perfil</button>
-            <button class="btn btn-secondary" onclick="logoutUser()">🚪 Cerrar sesión</button>
+            <button class="btn btn-secondary" onclick="openUserProfile()">👤 Mi Perfil</button>
+            <button class="btn btn-primary" onclick="logoutUser()">Cerrar sesión</button>
         `;
     } else {
         navButtons.innerHTML = `
@@ -445,6 +442,7 @@ window.openUserProfile = async function() {
 };
 
 // ===== CARGA DE TRABAJADORES =====
+// Modificar la función loadWorkers para inicializar filteredWorkers:
 async function loadWorkers() {
     try {
         const querySnapshot = await getDocs(collection(db, 'workers'));
@@ -452,6 +450,7 @@ async function loadWorkers() {
         querySnapshot.forEach((doc) => {
             workersData.push({ id: doc.id, ...doc.data() });
         });
+        filteredWorkers = [...workersData]; // Agregar esta línea
         displayWorkers(workersData);
         console.log('📋 Trabajadores cargados:', workersData.length);
     } catch (error) {
@@ -460,7 +459,7 @@ async function loadWorkers() {
     }
 }
 
-// Mostrar trabajadores de ejemplo
+// Modificar showExampleWorkers también:
 function showExampleWorkers() {
     const exampleWorkers = [
         {
@@ -471,56 +470,110 @@ function showExampleWorkers() {
             description: "Albañil con 15 años de experiencia en construcción residencial y comercial.",
             phone: "809-123-4567",
             email: "juan.perez@email.com",
-            profilePhoto: "https://ui-avatars.com/api/?name=Juan+Pérez&background=667eea&color=fff&size=200",
+            profilePhoto: "https://ui-avatars.com/api/?name=Juan+Pérez&background=0a66c2&color=fff&size=200",
             workPhotos: []
         }
     ];
     
     workersData = exampleWorkers;
+    filteredWorkers = [...workersData]; // Agregar esta línea
     displayWorkers(workersData);
 }
 
-// Mostrar trabajadores en la página
+// Mostrar trabajadores en la página con estilo LinkedIn
+// Reemplazar la función displayWorkers existente con esta versión mejorada
 function displayWorkers(workers) {
     const grid = document.getElementById('resultsGrid');
+    const resultsCount = document.getElementById('resultsCount');
+    
     if (!grid) return;
+    
+    // Actualizar contador
+    if (resultsCount) {
+        resultsCount.textContent = `${workers.length} profesionales encontrados`;
+    }
     
     grid.innerHTML = '';
 
     if (workers.length === 0) {
-        grid.innerHTML = '<p style="text-align: center; color: #666; font-size: 1.2rem; margin-top: 2rem;">No se encontraron profesionales.</p>';
+        grid.innerHTML = `
+            <div class="empty-state" style="grid-column: 1 / -1;">
+                <div class="empty-state-icon">🔍</div>
+                <div class="empty-state-title">No se encontraron profesionales</div>
+                <div class="empty-state-description">Intenta con otros términos de búsqueda o revisa todas las categorías</div>
+            </div>
+        `;
         return;
     }
 
-    workers.forEach(worker => {
+    workers.forEach((worker, index) => {
         const card = document.createElement('div');
         card.className = 'worker-card';
+        card.style.animationDelay = `${index * 0.1}s`;
+        
+        // Generar calificación aleatoria para demo (puedes reemplazar con datos reales)
+        const rating = (Math.random() * 2 + 3).toFixed(1); // Entre 3.0 y 5.0
+        const reviewCount = Math.floor(Math.random() * 50) + 10; // Entre 10 y 60
+        const stars = '⭐'.repeat(Math.floor(rating));
         
         // Crear galería de fotos si existen
         let photosGallery = '';
         if (worker.workPhotos && worker.workPhotos.length > 0) {
             photosGallery = `
-                <div style="display: flex; gap: 5px; margin-top: 10px; overflow-x: auto;">
-                    ${worker.workPhotos.map(photo => 
-                        `<img src="${photo}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px; flex-shrink: 0; cursor: pointer;" 
-                              onclick="showFullImage('${photo}')" title="Ver imagen completa">`
+                <div class="work-photos-grid">
+                    ${worker.workPhotos.map((photo, index) => 
+                        `<img src="${photo}" class="work-photo-thumb" 
+                              onclick="showFullImage('${photo}')" 
+                              title="Ver trabajo ${index + 1}">`
                     ).join('')}
                 </div>
             `;
         }
         
+        // Calcular estadísticas
+        const yearsExperience = Math.floor(Math.random() * 15) + 5;
+        const projectCount = Math.floor(Math.random() * 200) + 50;
+        const responseTime = Math.random() > 0.5 ? '24h' : '48h';
+        
         card.innerHTML = `
-            <img src="${worker.profilePhoto}" alt="${worker.fullName}" class="worker-avatar" 
-                 onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(worker.fullName)}&background=667eea&color=fff&size=200'">
-            <div class="worker-info">
+            <div class="worker-header">
+                <div class="worker-location">📍 ${worker.location}</div>
+                <div class="worker-avatar-container">
+                    <img src="${worker.profilePhoto}" alt="${worker.fullName}" class="worker-avatar" 
+                         onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(worker.fullName)}&background=0a66c2&color=fff&size=200'">
+                </div>
                 <div class="worker-name">${worker.fullName}</div>
                 <div class="worker-trade">${worker.trade}</div>
-                <div class="worker-location">${worker.location}</div>
+                <div class="worker-rating">
+                    <span class="stars">${stars}</span>
+                    <span class="rating-text">${rating} (${reviewCount} reseñas)</span>
+                </div>
+            </div>
+            <div class="worker-info">
+                <div class="worker-specialties">
+                    <span class="specialty-tag">${worker.trade}</span>
+                    <span class="specialty-tag">Profesional</span>
+                </div>
+                <div class="worker-stats">
+                    <div class="stat">
+                        <span class="stat-number">${yearsExperience}</span>
+                        <span class="stat-label">Años</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">${projectCount}+</span>
+                        <span class="stat-label">Proyectos</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">${responseTime}</span>
+                        <span class="stat-label">Respuesta</span>
+                    </div>
+                </div>
                 <div class="worker-description">${worker.description}</div>
                 ${photosGallery}
                 <div class="worker-contact">
-                    <a href="tel:${worker.phone}" class="contact-btn contact-phone">Llamar</a>
-                    <a href="mailto:${worker.email}" class="contact-btn contact-email">Email</a>
+                    <a href="tel:${worker.phone}" class="contact-btn contact-phone">📞 Llamar</a>
+                    <a href="mailto:${worker.email}" class="contact-btn contact-email">✉️ Email</a>
+                    <button class="contact-btn contact-rate" onclick="openRatingModal('${worker.id}', '${worker.fullName}')">⭐ Calificar</button>
                 </div>
             </div>
         `;
@@ -581,6 +634,140 @@ window.searchWorkers = function() {
 // ===== INICIALIZACIÓN =====
 document.addEventListener('DOMContentLoaded', function() {
     console.log('📱 DOM cargado');
+
+// Event listeners para filtros
+    document.querySelectorAll('.filter-tag').forEach(tag => {
+        tag.addEventListener('click', function() {
+            const group = this.closest('.filter-group');
+            
+            // Si es un filtro de categoría, solo permitir uno activo
+            if (group.querySelector('h3').textContent === 'Oficios') {
+                group.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                const category = this.dataset.category || '';
+                filterByCategory(category);
+            }
+            // Si es un filtro de calificación
+            else if (group.querySelector('h3').textContent === 'Calificación') {
+                group.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                const minRating = this.dataset.rating || 0;
+                filterByRating(minRating);
+            }
+        });
+    });
+});
+
+function filterByCategory(category) {
+    if (!category) {
+        filteredWorkers = [...workersData];
+    } else {
+        filteredWorkers = workersData.filter(worker => worker.trade === category);
+    }
+    displayWorkers(filteredWorkers);
+}
+
+function filterByRating(minRating) {
+   // Por ahora filtraremos aleatoriamente ya que no tenemos calificaciones reales
+   // En una implementación real, filtrarías por worker.rating >= minRating
+   if (minRating == 0) {
+       filteredWorkers = [...workersData];
+   } else {
+       // Simulación: mantener un porcentaje de trabajadores según la calificación
+       const keepPercentage = minRating == 5 ? 0.3 : minRating == 4 ? 0.6 : 0.8;
+       filteredWorkers = workersData.filter(() => Math.random() < keepPercentage);
+   }
+   displayWorkers(filteredWorkers);
+}
+
+window.advancedSearch = function() {
+   const nameSearch = document.getElementById('nameSearchInput').value.toLowerCase().trim();
+   const locationSearch = document.getElementById('locationSearchInput').value.toLowerCase().trim();
+   
+   let filtered = [...workersData];
+   
+   if (nameSearch) {
+       filtered = filtered.filter(worker => 
+           worker.fullName.toLowerCase().includes(nameSearch) ||
+           worker.trade.toLowerCase().includes(nameSearch) ||
+           worker.description.toLowerCase().includes(nameSearch)
+       );
+   }
+   
+   if (locationSearch) {
+       filtered = filtered.filter(worker => 
+           worker.location.toLowerCase().includes(locationSearch)
+       );
+   }
+   
+   filteredWorkers = filtered;
+   displayWorkers(filteredWorkers);
+   
+   if (filtered.length === 0) {
+       showMessage('No se encontraron profesionales con esos criterios', 'info');
+   } else {
+       showMessage(`Se encontraron ${filtered.length} profesionales`, 'success');
+   }
+};
+
+window.quickSearch = function() {
+   const searchTerm = document.getElementById('headerSearchInput').value.toLowerCase().trim();
+   
+   if (!searchTerm) {
+       displayWorkers(workersData);
+       return;
+   }
+   
+   const filtered = workersData.filter(worker => 
+       worker.fullName.toLowerCase().includes(searchTerm) ||
+       worker.trade.toLowerCase().includes(searchTerm) ||
+       worker.description.toLowerCase().includes(searchTerm) ||
+       worker.location.toLowerCase().includes(searchTerm)
+   );
+   
+   filteredWorkers = filtered;
+   displayWorkers(filtered);
+   
+   // Actualizar el input de búsqueda principal si existe
+   const mainSearchInput = document.getElementById('searchInput');
+   if (mainSearchInput) {
+       mainSearchInput.value = searchTerm;
+   }
+};
+
+
+// Agregar en el DOMContentLoaded, después de los event listeners existentes:
+
+// Búsqueda con Enter en header
+const headerSearchInput = document.getElementById('headerSearchInput');
+if (headerSearchInput) {
+    headerSearchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            quickSearch();
+        }
+    });
+}
+
+// Búsqueda con Enter en filtros avanzados
+const nameSearchInput = document.getElementById('nameSearchInput');
+if (nameSearchInput) {
+    nameSearchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            advancedSearch();
+        }
+    });
+}
+
+const locationSearchInput = document.getElementById('locationSearchInput');
+if (locationSearchInput) {
+    locationSearchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            advancedSearch();
+        }
+    });
+}
 
     // Event listener para foto de perfil
     const profilePhotoInput = document.getElementById('profilePhoto');
@@ -956,6 +1143,88 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // ===== SISTEMA DE CALIFICACIONES =====
+window.openRatingModal = function(workerId, workerName) {
+    currentWorkerId = workerId;
+    selectedRating = 0;
+    
+    // Actualizar el título del modal
+    const modal = document.getElementById('ratingModal');
+    const title = modal.querySelector('h2');
+    title.textContent = `Calificar a ${workerName}`;
+    
+    // Resetear estrellas
+    document.querySelectorAll('.star').forEach(star => {
+        star.classList.remove('active');
+    });
+    
+    openModal('ratingModal');
+};
+
+// Event listeners para las estrellas
+document.addEventListener('DOMContentLoaded', function() {
+    // ... código existente ...
+    
+    // Agregar después de los otros event listeners
+    const stars = document.querySelectorAll('.star');
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            selectedRating = parseInt(this.dataset.rating);
+            updateStars();
+        });
+        
+        star.addEventListener('mouseenter', function() {
+            const rating = parseInt(this.dataset.rating);
+            highlightStars(rating);
+        });
+    });
+    
+    document.querySelector('.star-rating').addEventListener('mouseleave', function() {
+        updateStars();
+    });
+});
+
+function highlightStars(rating) {
+    document.querySelectorAll('.star').forEach((star, index) => {
+        if (index < rating) {
+            star.classList.add('active');
+        } else {
+            star.classList.remove('active');
+        }
+    });
+}
+
+function updateStars() {
+    document.querySelectorAll('.star').forEach((star, index) => {
+        if (index < selectedRating) {
+            star.classList.add('active');
+        } else {
+            star.classList.remove('active');
+        }
+    });
+}
+
+window.submitRating = async function() {
+    if (selectedRating === 0) {
+        showMessage('Por favor selecciona una calificación', 'error');
+        return;
+    }
+    
+    const comment = document.getElementById('ratingComment').value;
+    
+    try {
+        // Aquí guardarías la calificación en Firebase
+        // Por ahora solo simulamos
+        showMessage(`¡Gracias por tu calificación de ${selectedRating} estrellas!`, 'success');
+        closeModal('ratingModal');
+        
+        // Limpiar el comentario
+        document.getElementById('ratingComment').value = '';
+    } catch (error) {
+        showMessage('Error al enviar la calificación', 'error');
+    }
+};
+
     // Buscar al presionar Enter
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
@@ -981,4 +1250,3 @@ document.addEventListener('DOMContentLoaded', function() {
             updateHeaderButtons();
         }
     });
-});
